@@ -1,0 +1,7 @@
+@import "tailwindcss";
+:root { color-scheme: light; --ink: #17251f; --muted: #66756d; --green: #176b4b; --cream: #f7f8f3; }
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--cream); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+button, textarea, input { font: inherit; }
+::selection { background: #cce8d9; }
