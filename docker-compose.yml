@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: travelsmart
+      POSTGRES_PASSWORD: travelsmart
+      POSTGRES_DB: travelsmart
+    ports: ["5432:5432"]
+    volumes: [travelsmart-postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travelsmart -d travelsmart"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+    volumes: [travelsmart-redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  travelsmart-postgres:
+  travelsmart-redis:
