@@ -76,7 +76,7 @@ export default function Home() {
               <div><dt className="text-slate-500">Budget</dt><dd className="font-medium">{result.budget_total ? `${result.currency} ${result.budget_total.toLocaleString()} · ${result.budget_scope.replace("_", " ")}` : "Not specified"}</dd></div>
             </dl>
             <div className="mt-4 space-y-2 text-sm">
-              <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference specified"}</p>
+              <p><strong>Origin:</strong> {result.origin ?? "Not specified"}</p>
               <p><strong>Stops:</strong> {result.max_stops === 0 ? "Nonstop only" : result.max_stops != null ? `Up to ${result.max_stops}` : "Flexible"}</p>
               <p><strong>Departure / arrival:</strong> {result.preferred_departure_period ?? "Any time"} / {result.preferred_arrival_period ?? "Any time"}</p>
               <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference"}{result.excluded_airlines.length > 0 ? ` · Excluding ${result.excluded_airlines.join(", ")}` : ""}</p>
