@@ -63,3 +63,17 @@ def test_unknown_values_remain_unknown():
     assert result.budget_total is None
     assert result.earliest_departure is None
     assert result.clarification_questions
+
+
+def test_month_and_year_stay_a_window_not_a_single_day():
+    result = fallback_interpretation("Visit Tokyo in March 2027")
+    assert result.travel_window_label == "March 2027"
+    assert result.earliest_departure is None
+    assert result.latest_departure is None
+
+
+def test_explicit_date_range_with_year_keeps_both_boundaries():
+    result = fallback_interpretation("Travel between March 5 and March 20, 2027")
+    assert result.earliest_departure == "2027-03-05"
+    assert result.latest_departure == "2027-03-20"
+    assert result.date_flexibility == "flexible"
