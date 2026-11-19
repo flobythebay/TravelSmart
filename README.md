@@ -71,12 +71,14 @@ Prerequisites: Node.js 22+, Python 3.12+, and Docker Desktop (optional).
 ## Current MVP scope
 
 - Natural-language trip request form.
-- Structured trip-preference schema.
-- AI-assisted extraction with a safe deterministic fallback.
-- Explicit separation of constraints and preferences.
+- Structured trip-preference schema with origin, destination, date windows, trip duration, budget scope, airline and hotel preferences.
+- AI-assisted extraction with a deterministic fallback.
+- Separate hard constraints from soft preferences (for example, "nonstop only" versus "prefer nonstop").
+- Clarification questions when key details such as destination, travel year, or budget scope are missing.
+- Date handling that preserves broad windows like "March 2027" instead of inventing a specific day.
 - API health and trip-intent endpoints.
 
-Live flight/hotel provider integrations, date-combination search, persisted accounts, price alerts, and award inventory are future milestones. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
+The current trip-intent interpreter can identify explicit dates and date ranges, broad month/season windows, trip length, budget scope, airline exclusions/preferences, stop limits, departure/arrival periods, and hotel transit/chain preferences. It also returns clarification questions when information is missing. Live flight/hotel provider integrations, date-combination search, persisted accounts, price alerts, and award inventory are future milestones. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
 
 ## Roadmap
 
