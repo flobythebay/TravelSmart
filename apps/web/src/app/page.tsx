@@ -77,7 +77,7 @@ export default function Home() {
             </dl>
             <div className="mt-4 space-y-2 text-sm">
               <p><strong>Origin:</strong> {result.origin ?? "Not specified"}</p>
-              <p><strong>Stops:</strong> {result.max_stops === 0 ? "Nonstop only" : result.max_stops != null ? `Up to ${result.max_stops}` : "Flexible"}</p>
+              <p><strong>Stops:</strong> {result.avoid_layovers ? "Nonstop required" : result.max_stops === 0 ? "Prefer nonstop" : result.max_stops != null ? `Up to ${result.max_stops} stops` : "Flexible"}</p>
               <p><strong>Departure / arrival:</strong> {result.preferred_departure_period ?? "Any time"} / {result.preferred_arrival_period ?? "Any time"}</p>
               <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference"}{result.excluded_airlines.length > 0 ? ` · Excluding ${result.excluded_airlines.join(", ")}` : ""}</p>
               <p><strong>Hotel:</strong> {result.preferred_hotel_chains.join(", ") || "Any chain"}{result.hotel_near_transit ? " · Near public transit" : ""}</p>
