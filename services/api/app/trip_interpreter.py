@@ -34,6 +34,15 @@ def _unique(values: list[str]) -> list[str]:
 
 def _extract_period(text: str) -> tuple[str | None, str | None, str | None]:
     """Return exact ISO boundaries only when the user explicitly supplied a year."""
+    iso_range = re.search(r"\b(20\d{2}-\d{2}-\d{2})\s+(?:to|through|-)\s+(20\d{2}-\d{2}-\d{2})\b", text)
+    if iso_range:
+        try:
+            first = date.fromisoformat(iso_range.group(1))
+            last = date.fromisoformat(iso_range.group(2))
+            return first.isoformat(), last.isoformat(), f"{first.isoformat()} to {last.isoformat()}"
+        except ValueError:
+            pass
+
     iso = re.search(r"\b20\d{2}-\d{2}-\d{2}\b", text)
     if iso:
         try:
@@ -134,6 +143,8 @@ def fallback_interpretation(request: str) -> TripIntent:
         soft.append("Prefer " + ", ".join(preferred_airlines))
     if excluded_airlines:
         hard.append("Exclude " + ", ".join(_unique(excluded_airlines)))
+    if max_stops_match:
+        hard.append(f"At most {max_stops} stops")
 
     hotel_near_transit = bool(re.search(r"\b(?:near|close to|walking distance of)\s+(?:public )?transit|near (?:the )?(?:subway|metro|train station|light rail)\b", lower))
     if hotel_near_transit:
