@@ -32,13 +32,13 @@ def _unique(values: list[str]) -> list[str]:
     return list(dict.fromkeys(value.strip() for value in values if value.strip()))
 
 
-def _extract_period(text: str) -> tuple[str | None, str | None]:
-    """Only produce ISO dates when the user supplied a year."""
+def _extract_period(text: str) -> tuple[str | None, str | None, str | None]:
+    """Return exact ISO boundaries only when the user explicitly supplied a year."""
     iso = re.search(r"\b20\d{2}-\d{2}-\d{2}\b", text)
     if iso:
         try:
             parsed = date.fromisoformat(iso.group(0))
-            return parsed.isoformat(), parsed.isoformat()
+            return parsed.isoformat(), parsed.isoformat(), parsed.isoformat()
         except ValueError:
             pass
 
@@ -47,24 +47,32 @@ def _extract_period(text: str) -> tuple[str | None, str | None]:
     if full_date:
         try:
             parsed = date(int(full_date.group(3)), MONTHS.index(full_date.group(1).lower()) + 1, int(full_date.group(2)))
-            return parsed.isoformat(), parsed.isoformat()
+            return parsed.isoformat(), parsed.isoformat(), parsed.isoformat()
         except ValueError:
             pass
 
     month_year = re.search(rf"\b({month_names})\s+(20\d{{2}})\b", text, re.I)
     if month_year:
-        month = MONTHS.index(month_year.group(1).lower()) + 1
-        return date(int(month_year.group(2)), month, 1).isoformat(), month_year.group(1).lower()
+        return None, None, f"{month_year.group(1).title()} {month_year.group(2)}"
+
+    range_with_year = re.search(rf"\b(?:between|from)\s+({month_names})\s+(\d{{1,2}})\s+(?:and|to|through)\s+({month_names})\s+(\d{{1,2}})[,]?\s+(20\d{{2}})\b", text, re.I)
+    if range_with_year:
+        try:
+            year = int(range_with_year.group(5))
+            first = date(year, MONTHS.index(range_with_year.group(1).lower()) + 1, int(range_with_year.group(2)))
+            last = date(year, MONTHS.index(range_with_year.group(3).lower()) + 1, int(range_with_year.group(4)))
+            return first.isoformat(), last.isoformat(), f"{first.isoformat()} to {last.isoformat()}"
+        except ValueError:
+            pass
 
     broad = re.search(rf"\b(?:in|during|sometime in|around|this|next)\s+({month_names}|{'|'.join(SEASONS)})\b", text, re.I)
     if broad:
-        return None, broad.group(1).lower()
+        return None, None, broad.group(1).lower()
 
     date_range = re.search(r"\b(?:between|from)\s+([A-Za-z]+\s+\d{1,2})\s+(?:and|to|through)\s+([A-Za-z]+\s+\d{1,2})\b", text, re.I)
     if date_range:
-        return None, f"{date_range.group(1)} to {date_range.group(2)}"
-    return None, None
-
+        return None, None, f"{date_range.group(1)} to {date_range.group(2)}"
+    return None, None, None
 
 def fallback_interpretation(request: str) -> TripIntent:
     text = request.strip()
