@@ -135,8 +135,8 @@ def fallback_interpretation(request: str) -> TripIntent:
     hotel_names = ["Marriott", "Hilton", "Hyatt", "IHG", "InterContinental", "Holiday Inn", "Westin", "Sheraton"]
     hotel_chains = [name for name in hotel_names if name.lower() in lower]
 
-    start, label = _extract_period(text)
-    flexibility = "exact" if start and label == start else "approximate" if label and label.lower() in MONTHS + SEASONS else "flexible" if label else "unspecified"
+    start, end, label = _extract_period(text)
+    flexibility = "exact" if start and end == start else "flexible" if start and end else "approximate" if label and label.lower() in MONTHS + SEASONS else "flexible" if label else "unspecified"
     if label and start is None:
         notes.append(f"Travel period stated as '{label}'. No year or exact dates were inferred.")
 
@@ -153,7 +153,7 @@ def fallback_interpretation(request: str) -> TripIntent:
 
     return TripIntent(
         origin=origin, destination=destination,
-        earliest_departure=start, latest_departure=start,
+        earliest_departure=start, latest_departure=end,
         travel_window_label=label, date_flexibility=flexibility,
         trip_length_days=days, trip_length_nights=nights,
         budget_total=budget, currency=currency, budget_scope=budget_scope,
