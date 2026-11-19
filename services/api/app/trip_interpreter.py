@@ -162,7 +162,7 @@ def fallback_interpretation(request: str) -> TripIntent:
     clarification = []
     if destination is None:
         clarification.append("Where would you like to travel?")
-    if label and start is None:
+    if label and start is None and not re.search(r"20\\d{2}", label):
         clarification.append("What year do you mean for that travel window?")
     if budget is not None and budget_scope == "unspecified":
         clarification.append("Is that budget for the whole trip or per person?")
