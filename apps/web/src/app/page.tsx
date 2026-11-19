@@ -2,11 +2,18 @@
 import { FormEvent, useState } from "react";
 
 type TripIntent = {
-  destination?: string | null; earliest_departure?: string | null; latest_departure?: string | null;
-  trip_length_days?: number | null; budget_total?: number | null; currency: string;
-  preferred_airlines: string[]; avoid_layovers: boolean;
-  preferred_departure_period?: string | null; must_haves: string[]; nice_to_haves: string[];
-  notes: string[]; extraction_method: "ai" | "fallback";
+  origin?: string | null; destination?: string | null;
+  earliest_departure?: string | null; latest_departure?: string | null;
+  travel_window_label?: string | null; date_flexibility: string;
+  trip_length_days?: number | null; trip_length_nights?: number | null;
+  budget_total?: number | null; currency: string; budget_scope: string;
+  preferred_airlines: string[]; excluded_airlines: string[]; avoid_layovers: boolean;
+  max_stops?: number | null; preferred_departure_period?: string | null;
+  preferred_arrival_period?: string | null; preferred_hotel_chains: string[];
+  hotel_near_transit: boolean; must_haves: string[]; nice_to_haves: string[];
+  hard_constraints: string[]; soft_preferences: string[];
+  clarification_questions: string[]; notes: string[];
+  extraction_method: "ai" | "fallback";
 };
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const examples = [
@@ -65,15 +72,18 @@ export default function Home() {
             <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
               <div><dt className="text-slate-500">Destination</dt><dd className="font-medium">{result.destination ?? "Not specified"}</dd></div>
               <div><dt className="text-slate-500">Trip length</dt><dd className="font-medium">{result.trip_length_days ? `${result.trip_length_days} days` : "Flexible"}</dd></div>
-              <div><dt className="text-slate-500">Travel window</dt><dd className="font-medium">{result.earliest_departure ?? "Flexible"} – {result.latest_departure ?? "Flexible"}</dd></div>
-              <div><dt className="text-slate-500">Budget</dt><dd className="font-medium">{result.budget_total ? `${result.currency} ${result.budget_total.toLocaleString()}` : "Not specified"}</dd></div>
+              <div><dt className="text-slate-500">Travel window</dt><dd className="font-medium">{result.earliest_departure && result.latest_departure ? `${result.earliest_departure} – ${result.latest_departure}` : result.travel_window_label ?? "Not specified"} <span className="text-xs text-slate-500">({result.date_flexibility})</span></dd></div>
+              <div><dt className="text-slate-500">Budget</dt><dd className="font-medium">{result.budget_total ? `${result.currency} ${result.budget_total.toLocaleString()} · ${result.budget_scope.replace("_", " ")}` : "Not specified"}</dd></div>
             </dl>
             <div className="mt-4 space-y-2 text-sm">
               <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference specified"}</p>
-              <p><strong>Nonstop:</strong> {result.avoid_layovers ? "Requested" : "Flexible"}</p>
-              <p><strong>Departure time:</strong> {result.preferred_departure_period ?? "Flexible"}</p>
-              {result.must_haves.length > 0 && <p><strong>Must-haves:</strong> {result.must_haves.join(", ")}</p>}
-              {result.nice_to_haves.length > 0 && <p><strong>Preferences:</strong> {result.nice_to_haves.join(", ")}</p>}
+              <p><strong>Stops:</strong> {result.max_stops === 0 ? "Nonstop only" : result.max_stops != null ? `Up to ${result.max_stops}` : "Flexible"}</p>
+              <p><strong>Departure / arrival:</strong> {result.preferred_departure_period ?? "Any time"} / {result.preferred_arrival_period ?? "Any time"}</p>
+              <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference"}{result.excluded_airlines.length > 0 ? ` · Excluding ${result.excluded_airlines.join(", ")}` : ""}</p>
+              <p><strong>Hotel:</strong> {result.preferred_hotel_chains.join(", ") || "Any chain"}{result.hotel_near_transit ? " · Near public transit" : ""}</p>
+              {result.hard_constraints.length > 0 && <p><strong>Must-haves:</strong> {result.hard_constraints.join(", ")}</p>}
+              {result.soft_preferences.length > 0 && <p><strong>Preferences:</strong> {result.soft_preferences.join(", ")}</p>}
+              {result.clarification_questions.length > 0 && <div className="mt-3 rounded-xl bg-white p-3"><strong>Let's clarify:</strong><ul className="mt-1 list-disc pl-5">{result.clarification_questions.map((question, index) => <li key={index}>{question}</li>)}</ul></div>}
             </div>
             <p className="mt-4 text-xs leading-5 text-slate-500">This is the preference-understanding prototype. Live flight and hotel prices are not connected yet, so no prices or availability are being quoted.</p>
           </section>}
