@@ -91,7 +91,7 @@ def fallback_interpretation(request: str) -> TripIntent:
     soft: list[str] = []
     notes: list[str] = []
 
-    destination_match = re.search(r"\b(?:to|visit)\s+([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:for|in|during|between|around|next|this|with|and|,|\.)|[,.]|$)", text, re.I)
+    destination_match = re.search(r"\b(?:to|visit)\s+(?!go\b|somewhere\b)([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:for|in|during|between|around|next|this|with|and|,|\.)|[,.]|$)", text, re.I)
     destination = destination_match.group(1).strip() if destination_match else None
     origin_match = re.search(r"\bfrom\s+([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:to|for|in|during|between|around|on|,)|[,.]|$)", text)
     origin = origin_match.group(1).strip() if origin_match else None
