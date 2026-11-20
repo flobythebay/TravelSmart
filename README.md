@@ -77,8 +77,10 @@ Prerequisites: Node.js 22+, Python 3.12+, and Docker Desktop (optional).
 - Clarification questions when key details such as destination, travel year, or budget scope are missing.
 - Date handling that preserves broad windows like "March 2027" instead of inventing a specific day.
 - API health and trip-intent endpoints.
+- Destination-constrained price optimization: the destination remains fixed while provider quotes may use different arrival and return airports within the same destination country.
+- A deterministic recommendations endpoint that joins flight and hotel quotes for matching dates, ranks by combined cost, enforces origin/country/stop/currency constraints, and preserves source booking URLs.
 
-The current trip-intent interpreter can identify explicit dates and date ranges, broad month/season windows, trip length, budget scope, airline exclusions/preferences, stop limits, departure/arrival periods, and hotel transit/chain preferences. It also returns clarification questions when information is missing. Live flight/hotel provider integrations, date-combination search, persisted accounts, price alerts, and award inventory are future milestones. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
+The current trip-intent interpreter can identify explicit dates and date ranges, broad month/season windows, trip length, budget scope, airline exclusions/preferences, stop limits, departure/arrival periods, and hotel transit/chain preferences. It also returns clarification questions when information is missing. Live flight/hotel provider integrations, automated date-combination quote collection, persisted accounts, price alerts, and award inventory are future milestones. The recommendations endpoint currently consumes quote data supplied by a future provider adapter; it does not fetch live inventory itself. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
 
 ## Roadmap
 
