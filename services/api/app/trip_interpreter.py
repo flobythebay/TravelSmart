@@ -52,6 +52,17 @@ def _extract_period(text: str) -> tuple[str | None, str | None, str | None]:
             pass
 
     month_names = "|".join(MONTHS)
+    range_with_year = re.search(rf"\b(?:between|from)\s+({month_names})\s+(\d{{1,2}})\s+(?:and|to|through)\s+({month_names})\s+(\d{{1,2}})[,]?\s+(20\d{{2}})\b", text, re.I)
+    if range_with_year:
+        try:
+            year = int(range_with_year.group(5))
+            first = date(year, MONTHS.index(range_with_year.group(1).lower()) + 1, int(range_with_year.group(2)))
+            last = date(year, MONTHS.index(range_with_year.group(3).lower()) + 1, int(range_with_year.group(4)))
+            return first.isoformat(), last.isoformat(), f"{first.isoformat()} to {last.isoformat()}"
+        except ValueError:
+            pass
+
+
     full_date = re.search(rf"\b({month_names})\s+(\d{{1,2}})(?:st|nd|rd|th)?[,]?\s+(20\d{{2}})\b", text, re.I)
     if full_date:
         try:
@@ -63,16 +74,6 @@ def _extract_period(text: str) -> tuple[str | None, str | None, str | None]:
     month_year = re.search(rf"\b({month_names})\s+(20\d{{2}})\b", text, re.I)
     if month_year:
         return None, None, f"{month_year.group(1).title()} {month_year.group(2)}"
-
-    range_with_year = re.search(rf"\b(?:between|from)\s+({month_names})\s+(\d{{1,2}})\s+(?:and|to|through)\s+({month_names})\s+(\d{{1,2}})[,]?\s+(20\d{{2}})\b", text, re.I)
-    if range_with_year:
-        try:
-            year = int(range_with_year.group(5))
-            first = date(year, MONTHS.index(range_with_year.group(1).lower()) + 1, int(range_with_year.group(2)))
-            last = date(year, MONTHS.index(range_with_year.group(3).lower()) + 1, int(range_with_year.group(4)))
-            return first.isoformat(), last.isoformat(), f"{first.isoformat()} to {last.isoformat()}"
-        except ValueError:
-            pass
 
     broad = re.search(rf"\b(?:in|during|sometime in|around|this|next)\s+({month_names}|{'|'.join(SEASONS)})\b", text, re.I)
     if broad:
@@ -90,7 +91,7 @@ def fallback_interpretation(request: str) -> TripIntent:
     soft: list[str] = []
     notes: list[str] = []
 
-    destination_match = re.search(r"\b(?:to|visit)\s+([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:for|in|during|between|around|next|this|with|and|,|\.)|[,.]|$)", text)
+    destination_match = re.search(r"\b(?:to|visit)\s+([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:for|in|during|between|around|next|this|with|and|,|\.)|[,.]|$)", text, re.I)
     destination = destination_match.group(1).strip() if destination_match else None
     origin_match = re.search(r"\bfrom\s+([A-Z][A-Za-zÀ-ÿ' -]{1,35}?)(?=\s+(?:to|for|in|during|between|around|on|,)|[,.]|$)", text)
     origin = origin_match.group(1).strip() if origin_match else None
