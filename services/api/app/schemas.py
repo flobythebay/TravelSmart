@@ -12,6 +12,7 @@ class TripIntent(BaseModel):
 
     origin: str | None = None
     destination: str | None = None
+    destination_strategy: Literal["fixed", "same_country_airports"] = "same_country_airports"
 
     # Date windows are only populated when the dates can be identified safely.
     earliest_departure: str | None = None
