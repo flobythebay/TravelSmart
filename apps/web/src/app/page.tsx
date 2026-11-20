@@ -3,6 +3,7 @@ import { FormEvent, useState } from "react";
 
 type TripIntent = {
   origin?: string | null; destination?: string | null;
+  destination_strategy: "fixed" | "same_country_airports";
   earliest_departure?: string | null; latest_departure?: string | null;
   travel_window_label?: string | null; date_flexibility: string;
   trip_length_days?: number | null; trip_length_nights?: number | null;
@@ -77,6 +78,7 @@ export default function Home() {
             </dl>
             <div className="mt-4 space-y-2 text-sm">
               <p><strong>Origin:</strong> {result.origin ?? "Not specified"}</p>
+              <p><strong>Destination flexibility:</strong> Fixed destination; compare entry/exit airports within the same country</p>
               <p><strong>Stops:</strong> {result.avoid_layovers ? "Nonstop required" : result.max_stops === 0 ? "Prefer nonstop" : result.max_stops != null ? `Up to ${result.max_stops} stops` : "Flexible"}</p>
               <p><strong>Departure / arrival:</strong> {result.preferred_departure_period ?? "Any time"} / {result.preferred_arrival_period ?? "Any time"}</p>
               <p><strong>Airlines:</strong> {result.preferred_airlines.join(", ") || "No preference"}{result.excluded_airlines.length > 0 ? ` · Excluding ${result.excluded_airlines.join(", ")}` : ""}</p>
