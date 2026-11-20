@@ -194,6 +194,7 @@ def _ai_schema() -> dict:
         "type": "object",
         "properties": {
             "origin": nullable_string, "destination": nullable_string,
+            "destination_strategy": {"type":"string","enum":["fixed","same_country_airports"]},
             "earliest_departure": nullable_string, "latest_departure": nullable_string,
             "travel_window_label": nullable_string,
             "date_flexibility": {"type":"string","enum":["exact","flexible","approximate","unspecified"]},
@@ -215,7 +216,7 @@ def _ai_schema() -> dict:
             "clarification_questions":{"type":"array","items":{"type":"string"}},
             "notes":{"type":"array","items":{"type":"string"}},
         },
-        "required":["origin","destination","earliest_departure","latest_departure","travel_window_label","date_flexibility","trip_length_days","trip_length_nights","budget_total","currency","budget_scope","preferred_airlines","excluded_airlines","avoid_layovers","max_stops","preferred_departure_period","preferred_arrival_period","preferred_hotel_chains","hotel_near_transit","hotel_location","must_haves","nice_to_haves","hard_constraints","soft_preferences","clarification_questions","notes"],
+        "required":["origin","destination","destination_strategy","earliest_departure","latest_departure","travel_window_label","date_flexibility","trip_length_days","trip_length_nights","budget_total","currency","budget_scope","preferred_airlines","excluded_airlines","avoid_layovers","max_stops","preferred_departure_period","preferred_arrival_period","preferred_hotel_chains","hotel_near_transit","hotel_location","must_haves","nice_to_haves","hard_constraints","soft_preferences","clarification_questions","notes"],
         "additionalProperties":False,
     }
 
