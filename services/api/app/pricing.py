@@ -44,6 +44,7 @@ class TripPriceSearchRequest(BaseModel):
     origin_airport: str = Field(min_length=3, max_length=4)
     currency: str = Field(default="USD", min_length=3, max_length=3)
     allow_same_country_airports: bool = True
+    preferred_destination_airport: str | None = Field(default=None, min_length=3, max_length=4)
     max_stops: int | None = Field(default=None, ge=0, le=4)
     flight_quotes: list[FlightQuote] = Field(min_length=1, max_length=500)
     hotel_quotes: list[HotelQuote] = Field(min_length=1, max_length=500)
@@ -93,13 +94,10 @@ def recommend_trip_options(request: TripPriceSearchRequest) -> TripPriceSearchRe
         if not same_country:
             rejected += 1
             continue
-        if not request.allow_same_country_airports and (
-            flight.arrival_airport.upper() != request.origin_airport.upper()
-        ):
-            # Strict airport matching is intentionally conservative until a
-            # destination's preferred airport is explicitly supplied.
-            rejected += 1
-            continue
+        if not request.allow_same_country_airports and request.preferred_destination_airport:
+            if flight.arrival_airport.upper() != request.preferred_destination_airport.upper():
+                rejected += 1
+                continue
         if request.max_stops is not None and flight.stops > request.max_stops:
             rejected += 1
             continue
