@@ -78,19 +78,27 @@ Prerequisites: Node.js 22+, Python 3.12+, and Docker Desktop (optional).
 - Date handling that preserves broad windows like "March 2027" instead of inventing a specific day.
 - API health and trip-intent endpoints.
 - Destination-constrained price optimization: the destination remains fixed while provider quotes may use different arrival and return airports within the same destination country.
-- A deterministic recommendations endpoint that joins flight and hotel quotes for matching dates, ranks by combined cost, enforces origin/country/stop/currency constraints, and preserves source booking URLs.
+- A deterministic price-exploration endpoint that searches across supplied departure-date windows and trip lengths, compares same-country arrival/return airport pairs, joins matching flight + hotel quotes, and ranks complete-trip cost while preserving source booking URLs.
+- Search constraints for earliest/latest departure, minimum/maximum nights, origin, destination country, currency, stop count, and optional fixed destination airport. Results summarize how many departure dates, airport pairs, and trip lengths were represented in matching quotes.
 
-The current trip-intent interpreter can identify explicit dates and date ranges, broad month/season windows, trip length, budget scope, airline exclusions/preferences, stop limits, departure/arrival periods, and hotel transit/chain preferences. It also returns clarification questions when information is missing. Live flight/hotel provider integrations, automated date-combination quote collection, persisted accounts, price alerts, and award inventory are future milestones. The recommendations endpoint currently consumes quote data supplied by a future provider adapter; it does not fetch live inventory itself. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
+The current trip-intent interpreter can identify explicit dates and date ranges, broad month/season windows, trip length, budget scope, airline exclusions/preferences, stop limits, departure/arrival periods, and hotel transit/chain preferences. It also returns clarification questions when information is missing. Live flight/hotel provider integrations, automated date-combination quote collection, persisted accounts, price alerts, and award inventory are future milestones. The recommendations endpoint currently consumes quote data supplied by a future provider adapter; it does not fetch live inventory itself. It can already explore and rank a provider's batch of quotes across flexible dates, trip lengths, and destination-country airport pairs, but it cannot discover quotes without a connected provider. Until providers are connected, the application labels its output as preference-understanding only and does not present mock data as live prices.
 
 ## Roadmap
 
 1. **Foundation:** web app, API, schemas, local infrastructure, CI.
 2. **Trip understanding:** natural-language extraction and editable structured preferences.
 3. **Provider integrations:** live flight and accommodation search with normalized results.
-4. **Optimization:** date-window exploration and combined flight + hotel ranking.
+4. **Optimization:** connect provider searches to the date-window and combined flight + hotel exploration engine.
 5. **Rewards:** loyalty profiles, award search, transfer-partner rules, redemption valuation.
 6. **Personalization:** saved trips, alerts, and conversational refinement.
 
 ## Security
 
 Do not commit `.env`, API keys, provider credentials, or personal loyalty account login credentials. Points balances can be entered manually; future integrations should use authorized provider flows and minimum necessary data.
+
+
+### Price exploration API
+
+`POST /api/v1/trips/recommendations` accepts a batch of normalized flight and hotel quotes plus exploration constraints. For example, set `earliest_departure` / `latest_departure` and `min_nights` / `max_nights` to compare a flexible travel window. With `allow_same_country_airports: true` (the default), both the arrival airport and the return-departure airport may vary, but both must remain in `destination_country`. Set `allow_same_country_airports: false` and `preferred_destination_airport` to pin the arrival airport.
+
+The response ranks matched flight + hotel combinations by their combined price and includes `explored_departure_dates`, `explored_airport_pairs`, and `explored_trip_lengths` so the UI can explain the search breadth. Booking URLs are passed through from the quote source; TravelSmart does not manufacture booking links. Quotes are not treated as live or verified unless a provider integration supplies them.
