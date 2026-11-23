@@ -79,3 +79,73 @@ def test_returns_booking_links_from_quote_sources():
         "flight": "https://example.com/flight",
         "hotel": "https://example.com/hotel",
     }
+
+
+def test_explores_date_window_trip_lengths_and_airport_pairs():
+    request = TripPriceSearchRequest(
+        destination="Japan",
+        destination_country="Japan",
+        origin_airport="SEA",
+        earliest_departure="2027-04-01",
+        latest_departure="2027-04-15",
+        min_nights=7,
+        max_nights=10,
+        flight_quotes=[
+            FlightQuote(departure_date="2027-04-02", return_date="2027-04-10",
+                        origin_airport="SEA", arrival_airport="HND",
+                        return_departure_airport="KIX", arrival_country="Japan",
+                        return_departure_country="Japan", price=700, currency="USD"),
+            FlightQuote(departure_date="2027-04-12", return_date="2027-04-22",
+                        origin_airport="SEA", arrival_airport="NRT",
+                        return_departure_airport="HND", arrival_country="Japan",
+                        return_departure_country="Japan", price=650, currency="USD"),
+            FlightQuote(departure_date="2027-04-20", return_date="2027-04-28",
+                        origin_airport="SEA", arrival_airport="HND",
+                        return_departure_airport="HND", arrival_country="Japan",
+                        return_departure_country="Japan", price=400, currency="USD"),
+        ],
+        hotel_quotes=[
+            HotelQuote(check_in="2027-04-02", check_out="2027-04-10",
+                       name="Tokyo stay", price=800, currency="USD"),
+            HotelQuote(check_in="2027-04-12", check_out="2027-04-22",
+                       name="Osaka stay", price=600, currency="USD"),
+            HotelQuote(check_in="2027-04-20", check_out="2027-04-28",
+                       name="Late stay", price=300, currency="USD"),
+        ],
+    )
+
+    result = recommend_trip_options(request)
+    assert [option.total_price for option in result.recommendations] == [1250, 1500]
+    assert result.explored_departure_dates == 2
+    assert result.explored_airport_pairs == 2
+    assert result.explored_trip_lengths == [8, 10]
+    assert result.rejected_options == 1
+
+
+def test_strict_airport_mode_requires_and_enforces_preferred_airport():
+    import pytest
+    from pydantic import ValidationError
+
+    base = {
+        "destination": "Japan",
+        "destination_country": "Japan",
+        "origin_airport": "SEA",
+        "allow_same_country_airports": False,
+        "flight_quotes": [
+            FlightQuote(departure_date="2027-04-12", return_date="2027-04-20",
+                        origin_airport="SEA", arrival_airport="KIX",
+                        return_departure_airport="HND", arrival_country="Japan",
+                        return_departure_country="Japan", price=650, currency="USD"),
+        ],
+        "hotel_quotes": [
+            HotelQuote(check_in="2027-04-12", check_out="2027-04-20",
+                       name="Hotel", price=500, currency="USD"),
+        ],
+    }
+    with pytest.raises(ValidationError):
+        TripPriceSearchRequest(**base)
+
+    request = TripPriceSearchRequest(**base, preferred_destination_airport="HND")
+    result = recommend_trip_options(request)
+    assert result.recommendations == []
+    assert result.rejected_options == 1
