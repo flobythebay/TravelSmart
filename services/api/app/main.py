@@ -19,5 +19,5 @@ def interpret_trip_request(payload: InterpretTripRequest) -> TripIntent:
 
 @app.post("/api/v1/trips/recommendations", response_model=TripPriceSearchResponse)
 def recommend_trip_prices(payload: TripPriceSearchRequest) -> TripPriceSearchResponse:
-    """Rank supplied flight and hotel quotes by combined trip cost."""
+    """Explore supplied date, duration, and same-country airport quotes by total cost."""
     return recommend_trip_options(payload)
