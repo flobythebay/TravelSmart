@@ -28,8 +28,8 @@ def recommend_trip_prices(payload: TripPriceSearchRequest) -> TripPriceSearchRes
 def search_flights(
     departure_id: str = Query(min_length=3, max_length=80),
     arrival_id: str = Query(min_length=3, max_length=80),
-    outbound_date: str = Query(pattern=r"^\\d{4}-\\d{2}-\\d{2}$"),
-    return_date: str | None = Query(default=None, pattern=r"^\\d{4}-\\d{2}-\\d{2}$"),
+    outbound_date: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    return_date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
     currency: str = Query(default="USD", min_length=3, max_length=3),
     adults: int = Query(default=1, ge=1, le=9),
     max_stops: int | None = Query(default=None, ge=0, le=2),
